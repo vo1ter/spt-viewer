@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Nabla&family=Oxanium:wght@700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+:root {
+    --primary-color: #151515;
+    --secondary-color: #777777;
+    --tertiary-color: #4c4c4c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    padding: 1em;
+    background-color: var(--primary-color);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.icon {
+    width: 1.5em;
+    height: auto;
+    color: white;
+    filter: invert(1) brightness(1);
+    margin: 0.5em;
+}
+
+.game-time {
+    display: flex;
+    align-items: center;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--primary-color);
+    background-image: url(./img/background.png);
+    color: white;
+    min-height: 100vh;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-style: bold;
+}
+
+footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 100vw;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    padding: 1em;
+    text-align: center;
+    margin-top: auto;
+}
+
+em a {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+.profile {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    background-color: var(--tertiary-color);
+    border-radius: 1em;
+    width: 80%;
+    height: auto;
+    font-size: 1.5em;
+    margin: 0.5em auto;
+    box-shadow: 0 0 1em 0.2em var(--primary-color);
+    overflow: hidden;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.user_img {
+    margin-right: 1em;
+    width: 3em;
+    height: auto;
+}
+
+.profiles {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 1em;
+    backdrop-filter: blur(10px);
+}
+
+.secret {
+    margin-right: 1em;
+}
+.secret:hover {
+    cursor: pointer;
+}
+
+.progress {
+    text-align: center;
+    background-color: var(--secondary-color);
+    border-radius: 0.5em;
+    font-size: 0.75em;
+    width: 100%;
+    max-width: 100%;
+}
+
+.progress > * {
+    margin: 10px;
+}
+
+.health-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+
+.health-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
+    max-width: 70%;
+}
+
+.health-row:first-child {
+    flex-direction: column;
+}
+
+.health-row:nth-child(2) {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.health-row:nth-child(3) {
+    flex-direction: column;
+    justify-content: center;
+}
+
+.health-row:last-child {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.health-item {
+    flex-basis: 100%;
+    text-align: center;
+}
+
+.health-item:nth-child(1) {
+    flex-basis: 100%;
+}
+
+.health-item:nth-child(2), .health-item:nth-child(3) {
+    flex-basis: calc(50% - 20px);
+}
+
+.health-item:nth-child(4) {
+    flex-basis: 100%;
+}
+
+a:link {
+    color: white;
+    text-decoration: none;
+}
+
+a:visited {
+    color: white;
+    text-decoration: none;
+}
+
+body.funny-fontXD {
+    font-family: "Nabla", system-ui !important;
+    font-optical-sizing: auto !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    font-variation-settings:
+        "EDPT" 100,
+        "EHLT" 12 !important;
+    font-size: 0.9em !important;
+}

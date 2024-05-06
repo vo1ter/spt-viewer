@@ -1,0 +1,4 @@
+{
+    "watch": ["sptViewerSocket.js"],
+    "ignore": ["*.json", "*.md"]
+}

@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const config = require('./config.json');
 
 const app = express();
 const port = 1337;
@@ -26,7 +27,7 @@ app.post('/profiles/get/', (req, res) => {
                             profileName: info.info.username,
                         },
                         PMCInfo: {
-                            lastSession: info.characters.pmc.Stats.Eft.LastSessionDate
+                            lastSession: info.characters.pmc.Stats.Eft.LastSessionDate < info.characters.scav.Stats.Eft.LastSessionDate ? info.characters.scav.Stats.Eft.LastSessionDate : info.characters.pmc.Stats.Eft.LastSessionDate
                         }
                     });
                 }
@@ -65,7 +66,7 @@ app.post('/profiles/get/everyone', (req, res) => {
                             profileName: info.info.username,
                         },
                         PMCInfo: {
-                            lastSession: info.characters.pmc.Stats.Eft.LastSessionDate
+                            lastSession: info.characters.pmc.Stats.Eft.LastSessionDate < info.characters.scav.Stats.Eft.LastSessionDate ? info.characters.scav.Stats.Eft.LastSessionDate : info.characters.pmc.Stats.Eft.LastSessionDate
                         }
 
                     };
@@ -85,6 +86,6 @@ app.post('/profiles/get/everyone', (req, res) => {
     }
 });
 
-app.listen(port, "192.168.1.6", () => {
-    console.log(`Server is running on http://192.168.1.6:${port}`);
+app.listen(port, config.IP_ADDRESS, () => {
+    console.log(`Server is running on http://${config.IP_ADDRESS}:${port}`);
 });

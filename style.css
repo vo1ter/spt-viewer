@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Nabla&family=Oxanium:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Nabla&family=Oxanium:wght@700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
+:root {
+    --primary-color: #151515;
+    --secondary-color: #777777;
+    --tertiary-color: #4c4c4c;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -9,10 +15,78 @@
     font-style: bold;
 }
 
-.container {
-    background-color: #151515;
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    padding: 1em;
+    background-color: var(--primary-color);
+}
+
+.icon {
+    width: 1.5em;
+    height: auto;
+    color: white;
+    filter: invert(1) brightness(1);
+    margin: 0.5em;
+}
+
+.game-time {
+    display: flex;
+    align-items: center;
+}
+
+body {
+    background-color: var(--primary-color);
+    background-image: url(./img/background.png);
     color: white;
     min-height: 100vh;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    padding: 1em;
+}
+
+em a {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    padding: 1em;
+    background-color: var(--tertiary-color);
+    border-radius: 1em;
+    width: 80%;
+    height: auto;
+    font-size: 1.5em;
+    margin: 0.5em auto;
+    box-shadow: 0 0 1em 0.2em var(--primary-color);
+}
+
+.user_img {
+    margin-right: 1em;
+    width: 4em;
+    height: auto;
+    border-radius: 50%;
+}
+
+.profiles {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.profile-info {
+    flex-grow: 1;
 }
 
 .funny-fontXD {

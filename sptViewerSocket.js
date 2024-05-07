@@ -19,110 +19,13 @@ app.use((req, res, next) => {
     next();
 });
 
-
-async function getItemById(itemId) {
-    const response = await fetch(`https://db.sp-tarkov.com/api/item?id=${itemId}&locale=en`);
-
-    const data = await response.json();
-    return data;
-}
-
-async function getProfileInfo(profileId, origin) {
+async function getQuestsInfo(profileId) {
     const filePath = `../user/profiles/${profileId}.json`;
     const fileContent = fs.readFileSync(filePath);
-    const info = JSON.parse(fileContent);
-
-    origin = origin || "soloProfile";
-    if(origin == "everyone") {
-        return {
-            profileInfo: {
-                profileId: info.info.id,
-                profileName: info.info.username,
-            },
-            PMCInfo: {
-                side: info.characters.pmc.Info.Side,
-                lastSession: Math.max(info.characters.pmc.Stats.Eft.LastSessionDate, info.characters.scav.Stats.Eft.LastSessionDate),
-            }
-        };
-    }
-
-    const tradersInfo = {};
-    for (const traderId in info.characters.pmc.TradersInfo) {
-        if(traderId == "ragfair") continue;
-        let traderName;
-        switch (traderId) {
-            case '54cb50c76803fa8b248b4571':
-                traderName = 'Prapor';
-                break;
-            case '54cb57776803fa99248b456e':
-                traderName = 'Therapist';
-                break;
-            case '579dc571d53a0658a154fbec':
-                traderName = 'Fence';
-                break;
-            case '58330581ace78e27b8b10cee':
-                traderName = 'Skier';
-                break;
-            case '5935c25fb3acc3127c3d8cd9':
-                traderName = 'Peacekeeper';
-                break;
-            case '5a7c2eca46aef81a7ca2145d':
-                traderName = 'Mechanic';
-                break;
-            case '5ac3b934156ae10c4430e83c':
-                traderName = 'Ragman';
-                break;
-            case '5c0647fdd443bc2504c2d371':
-                traderName = 'Jaeger';
-                break;
-            case '638f541a29ffd1183d187f57':
-                traderName = 'Lighthouse Keeper';
-                break;
-            default:
-                traderName = 'Unknown Trader';
-        }
-        tradersInfo[traderName] = {
-            traderId: traderId,
-            traderLevel: info.characters.pmc.TradersInfo[traderId].loyaltyLevel,
-            reputation: info.characters.pmc.TradersInfo[traderId].standing,
-            salesSum: info.characters.pmc.TradersInfo[traderId].salesSum,
-        };
-    }
-
-    const skillsInfo = {};
-    info.characters.pmc.Skills.Common.forEach(skill => {
-        skillsInfo[skill.Id] = {
-            progress: skill.Progress,
-            lvl: Math.floor((skill.Progress / 100) + 1),
-        };
-    })
-
-    const masteringInfo = {};
-    info.characters.pmc.Skills.Mastering.forEach(skill => {
-        masteringInfo[skill.Id] = {
-            progress: skill.Progress,
-        };
-    })
-
-    const kills = {};
-    const killPromises = info.characters.pmc.Stats.Eft.Victims.map(async (kill) => {
-        let weaponName = await getItemById(kill.Weapon.split(" ")[0]).then(async (response) => { return await response.locale.ShortName })
-        kills[kill.ProfileId] = {
-            username: kill.Name,
-            side: kill.Side,
-            level: kill.Level,
-            bodypart: kill.BodyPart,
-            distance: `${Math.round(kill.Distance * 100) / 100}m`,
-            weapon: weaponName
-        };
-        return kills;
-    });
-
+    const data = JSON.parse(fileContent).characters.pmc.Quests;
     const quests = {}
 
-    await Promise.all(killPromises);
-
-    await info.characters.pmc.Quests.forEach(async (quest) => {
+    await data.forEach(async (quest) => {
         questStatus = ""
         switch(quest.status) {
             case 1:
@@ -175,6 +78,121 @@ async function getProfileInfo(profileId, origin) {
             statusTimers: timers
         };
     })
+
+    return quests;
+}
+
+async function getTradersInfo(profileId) {
+    const filePath = `../user/profiles/${profileId}.json`;
+    const fileContent = fs.readFileSync(filePath);
+    const data = JSON.parse(fileContent).characters.pmc.TradersInfo;
+
+    const response = {}
+    for (const traderId in data) {
+        if(traderId == "ragfair") continue;
+        let traderName;
+        switch (traderId) {
+            case '54cb50c76803fa8b248b4571':
+                traderName = 'Prapor';
+                break;
+            case '54cb57776803fa99248b456e':
+                traderName = 'Therapist';
+                break;
+            case '579dc571d53a0658a154fbec':
+                traderName = 'Fence';
+                break;
+            case '58330581ace78e27b8b10cee':
+                traderName = 'Skier';
+                break;
+            case '5935c25fb3acc3127c3d8cd9':
+                traderName = 'Peacekeeper';
+                break;
+            case '5a7c2eca46aef81a7ca2145d':
+                traderName = 'Mechanic';
+                break;
+            case '5ac3b934156ae10c4430e83c':
+                traderName = 'Ragman';
+                break;
+            case '5c0647fdd443bc2504c2d371':
+                traderName = 'Jaeger';
+                break;
+            case '638f541a29ffd1183d187f57':
+                traderName = 'Lighthouse Keeper';
+                break;
+            default:
+                traderName = 'Unknown Trader';
+        }
+        response[traderName] = {
+            traderId: traderId,
+            traderLevel: data[traderId].loyaltyLevel,
+            reputation: data[traderId].standing,
+            salesSum: data[traderId].salesSum,
+        };
+    }
+
+    return response;
+}
+
+async function getItemById(itemId) {
+    const response = await fetch(`https://db.sp-tarkov.com/api/item?id=${itemId}&locale=en`);
+
+    const data = await response.json();
+    return data;
+}
+
+async function getProfileInfo(profileId, origin) {
+    const filePath = `../user/profiles/${profileId}.json`;
+    const fileContent = fs.readFileSync(filePath);
+    const info = JSON.parse(fileContent);
+
+    origin = origin || "soloProfile";
+    if(origin == "everyone") {
+        return {
+            profileInfo: {
+                profileId: info.info.id,
+                profileName: info.info.username,
+            },
+            PMCInfo: {
+                side: info.characters.pmc.Info.Side,
+                lastSession: Math.max(info.characters.pmc.Stats.Eft.LastSessionDate, info.characters.scav.Stats.Eft.LastSessionDate),
+            }
+        };
+    }
+
+    const tradersInfo = await getTradersInfo(profileId);
+
+    const skillsInfo = {};
+    info.characters.pmc.Skills.Common.forEach(skill => {
+        skillsInfo[skill.Id] = {
+            progress: skill.Progress,
+            lvl: Math.floor((skill.Progress / 100) + 1),
+        };
+    })
+
+    const masteringInfo = {};
+    info.characters.pmc.Skills.Mastering.forEach(skill => {
+        masteringInfo[skill.Id] = {
+            progress: skill.Progress,
+        };
+    })
+
+    const kills = {};
+    const killPromises = info.characters.pmc.Stats.Eft.Victims.map(async (kill) => {
+        let weaponName = await getItemById(kill.Weapon.split(" ")[0]).then(async (response) => { return await response.locale.ShortName })
+        kills[kill.ProfileId] = {
+            username: kill.Name,
+            side: kill.Side,
+            level: kill.Level,
+            bodypart: kill.BodyPart,
+            distance: `${Math.round(kill.Distance * 100) / 100}m`,
+            weapon: weaponName
+        };
+        return kills;
+    });
+
+    await Promise.all(killPromises);
+
+    const quests = await getQuestsInfo(profileId)
 
     return {
         profileInfo: {
@@ -235,6 +253,32 @@ app.post('/profiles/get/', async (req, res) => {
     }
 });
 
+app.post('/profiles/get/traders', async (req, res) => {
+    if(!req.body.profileId) return res.send('Error. Specify profileId');
+
+    try {
+        const tradersInfo = await getTradersInfo(req.body.profileId);
+        res.send(tradersInfo);
+    } 
+    catch (err) {
+        console.log(err);
+        res.send('Error reading profile');
+    }
+});
+
+app.post('/profiles/get/quests', async (req, res) => {
+    if(!req.body.profileId) return res.send('Error. Specify profileId');
+
+    try {
+        const questsInfo = await getQuestsInfo(req.body.profileId);
+        res.send(questsInfo);
+    } 
+    catch (err) {
+        console.log(err);
+        res.send('Error reading profile');
+    }
+});
+
 app.post('/profiles/get/everyone', async (req, res) => {
     try {
         const profilesFileList = fs.readdirSync('../user/profiles').filter((file) => file.endsWith('.json'));
@@ -271,6 +315,6 @@ app.post('/profiles/get/everyone', async (req, res) => {
 });
 
 
-app.listen(port, sptAkiHttpConfig.ip, () => { // config.IP_ADDRESS
+app.listen(port, sptAkiHttpConfig.ip, () => {
     console.log(`Server is running on http://${sptAkiHttpConfig.ip}:${port}`);
 });

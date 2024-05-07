@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const path = require('path');
 const sptAkiHttpConfig = require('../Aki_Data/Server/configs/http.json');
 const questsDB = require('./quests.json');
 
@@ -314,7 +315,22 @@ app.post('/profiles/get/everyone', async (req, res) => {
     }
 });
 
+app.use(express.static(path.join(__dirname, 'web')));
 
 app.listen(port, sptAkiHttpConfig.ip, () => {
+    const config = {
+        ip: sptAkiHttpConfig.ip,
+        port: port
+    };
+    const data = JSON.stringify(config, null, 2);
+    fs.writeFile('web/config.json', data, (err) => {
+        if (err) {
+            console.error('Error writing file:', err);
+        } else {
+            console.log('Configuration saved to config.json');
+        }
+    });
+    
     console.log(`Server is running on http://${sptAkiHttpConfig.ip}:${port}`);
+    console.log(`You can view your website at http://${sptAkiHttpConfig.ip}:${port}/index.html`);
 });

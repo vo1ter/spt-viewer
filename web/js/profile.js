@@ -122,24 +122,29 @@ async function loadProfile(data) {
 (async () => {
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.size > 0) {
-        if(!urlParams.get('profileId')) return window.location.href = './index.html';
-        const data = await fetch(`http://26.22.52.191:1337/profiles/get`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                profileId: urlParams.get('profileId')
+        fetch('./config.json')
+        .then(response => response.json())
+        .then(async (CONFIG) => {
+            if(!urlParams.get('profileId')) return window.location.href = './index.html';
+            const data = await fetch(`http://${CONFIG.ip}:${CONFIG.port}/profiles/get`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    profileId: urlParams.get('profileId')
+                })
             })
-        })
-        .then(async (response) => {
-            return await response.json()
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+            .then(async (response) => {
+                return await response.json()
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
 
-        return loadProfile(data);
-    } 
-    else return window.location.href = './index.html';
+            return loadProfile(data);
+        })
+    } else {
+        return window.location.href = './index.html';
+    }
 })();

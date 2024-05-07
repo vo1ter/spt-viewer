@@ -25,19 +25,20 @@ function hashString(str) {
     return hash;
 }
 
-fetch(`http://26.22.52.191:1337/profiles/get/everyone`, {
-method: 'POST',
-headers: {
-    'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        
+fetch('./config.json')
+    .then(response => response.json())
+    .then(CONFIG => {
+    fetch(`http://${CONFIG.ip}:${CONFIG.port}/profiles/get/everyone`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+        })
     })
-})
-.then(response => response.json())
-.then(data => {
-    popualteProfiles(data)
-})
-.catch(error => {
-    console.error('Error:', error);
-});
+    .then(response => response.json())
+    .then(data => 
+        popualteProfiles(data))
+    .catch(error => console.error('Error:', error));
+    })
+    .catch(error => console.error('Error:', error));

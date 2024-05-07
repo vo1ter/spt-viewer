@@ -8,25 +8,24 @@ function changeFont() {
 
 async function updateTime() {
     while (true) {
-        let date = new Date();
-        let tarkovTimeDay = realTimeToTarkovTime(date, false);
-        let tarkovTimeNight = realTimeToTarkovTime(date, true);
-        let firstTimeIcon = ""
-        let secondTimeIcon = ""
+        let tarkovTimeDay = realTimeToTarkovTime(new Date(), false);
+        let tarkovTimeNight = realTimeToTarkovTime(new Date(), true);
+        let iconTimeDay = "";
+        let iconTimeNight = ""
 
-        if(tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' }).split(":")[0] > 20 && tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' }).split(":")[0] < 12) {
-            firstTimeIcon = "./img/night.png";
-            secondTimeIcon = "./img/day.png";
+        if(parseInt((tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })).split(":")[0]) > 5) {
+            iconTimeDay = "./img/day.png";
+            iconTimeNight = "./img/night.png";
         }
-        else if(tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' }).split(":")[0] < 20 && tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' }).split(":")[0] > 5) {
-            firstTimeIcon = "./img/day.png";
-            secondTimeIcon = "./img/night.png";
+        else if(parseInt((tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })).split(":")[0]) < 5) {
+            iconTimeDay = "./img/night.png";
+            iconTimeNight = "./img/day.png";
         }
 
         gameTimeContainer.innerHTML = `
-            <img draggable="false" class="icon" src="${firstTimeIcon}" alt=""> 
+            <img draggable="false" class="icon" src="${iconTimeDay}" alt=""> 
                 ${tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })} | 
-            <img draggable="false" class="icon" src="${secondTimeIcon}" alt=""> 
+            <img draggable="false" class="icon" src="${iconTimeNight}" alt=""> 
                 ${tarkovTimeNight.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })}`;
         await new Promise(resolve => setTimeout(resolve, updateRate));
     }

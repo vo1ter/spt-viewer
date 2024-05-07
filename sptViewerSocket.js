@@ -150,10 +150,13 @@ async function getProfileInfo(profileId, origin) {
             let timerStatus = "";
             switch(key) {
                 case "1":
-                    timerStatus = "Started";
+                    timerStatus = "Became available";
                     break;
                 case "2":
                     timerStatus = "In progress";
+                    break;
+                case "3":
+                    timerStatus = "Awaiting confirmation";
                     break;
                 case "4":
                     timerStatus = "Finished";

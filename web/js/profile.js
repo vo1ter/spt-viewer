@@ -13,7 +13,52 @@ function calculateColor(value, maxValue) {
     return `rgb(${red}, ${green}, ${blue})`;
 }
 
-function loadProfile(data) {
+async function traderTemplate(data) {
+    let template = ""
+    for(const [key, value] of Object.entries(data)) {
+        template += `
+        <div>
+            ${key}<br><br>
+            Trader LVL: ${value.traderLevel}<br>
+            Trader reputation: ${value.reputation}<br>
+            Trader total sales: ${value.salesSum}<br>
+        </div>
+        `
+    }
+    return `
+    ${template}
+    `
+}
+
+// TODO: Make quests and traders expandable by user (request should only be made after it's container is expanded)
+// TODO: Add mastering lvl. Also make those containers more pleaseful for the eye.
+
+async function questTemplate(data) {
+    let template = ""
+    for(const [key, value] of Object.entries(data)) {
+        let date = new Date(value.startTime * 1000);
+        let dateString = date.toLocaleString("en-GB", {timeZone: "Europe/London"});
+        let timings = ""
+        for(const [timingKey, timingValue] of Object.entries(value.statusTimers)) {
+            let date = new Date(timingValue * 1000);
+            let dateString = date.toLocaleString("en-GB", {timeZone: "Europe/London"});
+            timings += `${timingKey}: ${dateString}<br>`
+        }
+        template += `
+        <div>
+            ${value.title ? value.title : key}<br><br>
+            Start time: ${dateString}<br>
+            Quest status: ${value.status}<br>
+            Status timings:<br>${timings}
+        </div>
+        `
+    }
+    return `
+    ${template}
+    `
+}
+
+async function loadProfile(data) {
     let date = new Date(data.PMCInfo.lastSession * 1000);
     let dateString = date.toLocaleString("en-GB", {timeZone: "Europe/London"});
     // style="align-items: center; justify-content: center; text-align center:"
@@ -28,6 +73,8 @@ function loadProfile(data) {
         Side: ${data.PMCInfo.side} <br>
         Exprerience: ${data.PMCInfo.experience} <br>
         Level: ${data.PMCInfo.level} <br>
+        Hydration: ${data.PMCInfo.health.hydration} <br>
+        Energy: ${data.PMCInfo.health.energy} <br>
         <h3>Health</h3>
         <div class="health-container">
             <div class="health-row">
@@ -37,28 +84,37 @@ function loadProfile(data) {
             </div>
             <div class="health-row">
                 <div class="progress" style="background-color: ${calculateColor((data.PMCInfo.health.body.chest).split("/")[0], (data.PMCInfo.health.body.chest).split("/")[1])}; margin-right: 1em">
-                    <p>${data.PMCInfo.health.body.chest.split("/")[0]} / ${data.PMCInfo.health.body.chest.split("/")[1]}</p>
+                    <p>${data.PMCInfo.health.body.chest}</p>
                 </div>
                 <div class="progress" style="background-color: ${calculateColor((data.PMCInfo.health.body.stomach).split("/")[0], (data.PMCInfo.health.body.stomach).split("/")[1])}">
-                    <p>${data.PMCInfo.health.body.stomach.split("/")[0]} / ${data.PMCInfo.health.body.stomach.split("/")[1]}</p>
+                    <p>${data.PMCInfo.health.body.stomach}</p>
                 </div>
                 <div class="progress" style="background-color: ${calculateColor((data.PMCInfo.health.body.leftArm).split("/")[0], (data.PMCInfo.health.body.leftArm).split("/")[1])}; margin-left: 1em">
-                    <p>${data.PMCInfo.health.body.leftArm.split("/")[0]} / ${data.PMCInfo.health.body.leftArm.split("/")[1]}</p>
+                    <p>${data.PMCInfo.health.body.leftArm}</p>
                 </div>
             </div>
             <div class="health-row">
                 <div class="progress" style="background-color: ${calculateColor((data.PMCInfo.health.body.rightArm).split("/")[0], (data.PMCInfo.health.body.rightArm).split("/")[1])}">
-                    <p>${data.PMCInfo.health.body.rightArm.split("/")[0]} / ${data.PMCInfo.health.body.rightArm.split("/")[1]}</p>
+                    <p>${data.PMCInfo.health.body.rightArm}</p>
                 </div>
             </div>
             <div class="health-row">
                 <div class="progress" style="background-color: ${calculateColor((data.PMCInfo.health.body.leftLeg).split("/")[0], (data.PMCInfo.health.body.leftLeg).split("/")[1])}; margin-right: 1em">
-                    <p>${data.PMCInfo.health.body.leftLeg.split("/")[0]} / ${data.PMCInfo.health.body.leftLeg.split("/")[1]}</p>
+                    <p>${data.PMCInfo.health.body.leftLeg}</p>
                 </div>
                 <div class="progress" style="background-color: ${calculateColor((data.PMCInfo.health.body.rightLeg).split("/")[0], (data.PMCInfo.health.body.rightLeg).split("/")[1])}; margin-left: 1em">
-                    <p>${data.PMCInfo.health.body.rightLeg.split("/")[0]} / ${data.PMCInfo.health.body.rightLeg.split("/")[1]}</p>
+                    <p>${data.PMCInfo.health.body.rightLeg}</p>
                 </div>
             </div>
+        </div>
+        <div>
+        <h3>Traders info</h3>
+        <div class="grid-container">
+            ${await traderTemplate(data.tradersInfo)}
+        </div>
+        <div class="grid-container">
+            ${await questTemplate(data.PMCInfo.quests)}
+        </div>
         </div>
     </div>`
 }

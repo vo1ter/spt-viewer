@@ -178,6 +178,24 @@ em a {
     flex-basis: 100%;
 }
 
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px; 
+}
+
+.grid-container > div {
+    background-color: #151515;
+    padding: 0.5em;
+    border-radius: 5px;
+    margin-bottom: 1em;
+}
+
+.grid-container > div:nth-child(2n) {
+    margin-left: 1em;
+}
+
 a:link {
     color: white;
     text-decoration: none;

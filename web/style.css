@@ -4,6 +4,11 @@
     --primary-color: #151515;
     --secondary-color: #777777;
     --tertiary-color: #4c4c4c;
+    --cursor-pointer: url("./img/cursor/cursor_hand.png"), auto;
+    --cursor-idle: url("./img/cursor/cursor_idle.png"), auto;
+    --cursor-over: url("./img/cursor/cursor_over.png"), auto;
+    --cursor-stretch-horizontal: url("./img/cursor/cursor_stretch_horizontal.png"), auto;
+    --cursor-stretch-vertical: url("./img/cursor/cursor_stretch_vertical.png"), auto;
 }
 
 * {
@@ -109,8 +114,6 @@ em a {
 
 .secret {
     margin-right: 1em;
-}
-.secret:hover {
     cursor: pointer;
 }
 
@@ -186,9 +189,9 @@ em a {
 }
 
 .grid-container > div {
-    background-color: #151515;
+    /* background-color: #151515; */
     padding: 0.5em;
-    border-radius: 5px;
+    /* border-radius: 5px; */
     margin-bottom: 1em;
 }
 
@@ -204,6 +207,26 @@ a:link {
 a:visited {
     color: white;
     text-decoration: none;
+}
+
+a:hover {
+    cursor: pointer;
+}
+
+.button {
+    background-size: 70%;
+    max-width: 500px;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    max-width: auto;
+    text-align: center;
+}
+
+.button:hover {
+    background: url("./img/button.png") center;
+    background-size: 100% 100%;
+    color: black;
 }
 
 body.funny-fontXD {

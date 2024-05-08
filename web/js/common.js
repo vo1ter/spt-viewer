@@ -54,6 +54,11 @@ function timeUntilRelative(until, left, date) {
     return diffRT;
 }
 
+function formatNumber(num) {
+    if (num < 0) return num.toString();
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 (() => {
     document.getElementsByTagName("body")[0].innerHTML = `
     <header>

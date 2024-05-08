@@ -225,7 +225,6 @@ async function getProfileInfo(profileId, origin) {
                 skillsInfo,
                 masteringInfo
             },
-            quests
         },
         SCAVInfo: {
             experience: info.characters.scav.Info.Experience,
@@ -233,7 +232,6 @@ async function getProfileInfo(profileId, origin) {
             scavName: info.characters.scav.Info.Nickname,
 
         },
-        tradersInfo: tradersInfo,
         lastRaid: {
             sessionDate: Math.max(info.characters.pmc.Stats.Eft.LastSessionDate, info.characters.scav.Stats.Eft.LastSessionDate),
             kills

@@ -9,9 +9,11 @@ function popualteProfiles(profiles) {
             <a href="profile.html?profileId=${value.profileInfo.profileId}" class="profile" draggable="false" style="background-image: url(img/background-images/${imageNumber}.png);">
                 <div class="profile-info" style="flex-direction:row;">
                     <img draggable="false" class="user_img" src="./img/side_${String(value.PMCInfo.side).toLowerCase()}.png" alt="" height="20px" width="20px">
-                    Profile name: ${value.profileInfo.profileName} <br>
-                    Profile ID: ${value.profileInfo.profileId} <br>
-                    Last Session: ${dateString}
+                    <div style="text-shadow: 2px 2px 5px black;">
+                        <p>Profile name: ${value.profileInfo.profileName} </p>
+                        <p>Profile ID: ${value.profileInfo.profileId} </p>
+                        <p>Last Session: ${dateString}</p>
+                    </div>
                 </div>
             </a>`
     }

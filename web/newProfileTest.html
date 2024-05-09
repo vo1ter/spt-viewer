@@ -50,6 +50,26 @@
     .profile-info > div {
         margin-bottom: 20px;
     }
+
+    .inventory-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .inventory-container > .horizontal > div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #252525;
+        border: 1px solid rgb(255,255,255,0.5);
+        max-width: 100px;
+        max-height: 100px;
+        width: 100px;
+        height: 100px;
+    }
 </style>
 <body>
     <!-- reference: https://i.redd.it/a84cbs57g8341.png -->
@@ -188,7 +208,14 @@
                 </div>
             </div>
         </div>
+        <div class="profile vertical">
+            <p>Inventory </p>
+            <div class="inventory-container">
+                
+            </div>
+        </div>
     </div>
 </body>
 <script src="js/common.js"></script>
+<script src="js/inventory.js"></script>
 </html>

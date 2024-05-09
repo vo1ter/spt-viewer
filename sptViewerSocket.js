@@ -5,21 +5,22 @@ const path = require('path');
 const sptAkiHttpConfig = require('../Aki_Data/Server/configs/http.json');
 const questsDB = require('./quests.json');
 
+// Fetch
 const app = express();
 const port = 1337;
 
+// Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
+    if (req.method === 'OPTIONS') return res.sendStatus(200);
     next();
 });
 
+// Get quests info from users profile
 async function getQuestsInfo(profileId) {
     const filePath = `../user/profiles/${profileId}.json`;
     const fileContent = fs.readFileSync(filePath);
@@ -83,6 +84,7 @@ async function getQuestsInfo(profileId) {
     return quests;
 }
 
+// Get traders info from users profile
 async function getTradersInfo(profileId) {
     const filePath = `../user/profiles/${profileId}.json`;
     const fileContent = fs.readFileSync(filePath);
@@ -120,6 +122,9 @@ async function getTradersInfo(profileId) {
             case '638f541a29ffd1183d187f57':
                 traderName = 'Lighthouse Keeper';
                 break;
+            case '656f0f98d80a697f855d34b1':
+                traderName = 'BTR-82 Driver';
+                break;
             default:
                 traderName = 'Unknown Trader';
         }
@@ -134,6 +139,7 @@ async function getTradersInfo(profileId) {
     return response;
 }
 
+// Get item data by ID
 async function getItemById(itemId) {
     const response = await fetch(`https://db.sp-tarkov.com/api/item?id=${itemId}&locale=en`);
 
@@ -141,6 +147,7 @@ async function getItemById(itemId) {
     return data;
 }
 
+// Get profile info
 async function getProfileInfo(profileId, origin) {
     const filePath = `../user/profiles/${profileId}.json`;
     const fileContent = fs.readFileSync(filePath);
@@ -193,13 +200,12 @@ async function getProfileInfo(profileId, origin) {
 
     await Promise.all(killPromises);
 
-    const quests = await getQuestsInfo(profileId)
-
     return {
         profileInfo: {
             profileId: info.info.id,
             profileName: info.info.username,
-            profilePackage: String(info.characters.pmc.Info.GameVersion).replaceAll("_", " ").toUpperCase()
+            profilePackage: String(info.characters.pmc.Info.GameVersion).replaceAll("_", " ").toUpperCase(),
+            totalPlayTime: info.characters.pmc.Stats.Eft.OverallCounters.TotalInGameTime
         },
         PMCInfo: {
             side: info.characters.pmc.Info.Side,
@@ -239,6 +245,34 @@ async function getProfileInfo(profileId, origin) {
     };
 }
 
+// Get all quests images
+app.get('/img/quests/', async (req, res) => {
+    const imgPath = path.join(__dirname, 'web/img/quests/');
+    const files = await fs.promises.readdir(imgPath);
+    const fileNames = await Promise.all(files.map(async (file) => {
+        return file;
+    }));
+    res.send(fileNames);
+});
+
+app.get('/img/quests/get/:key', async (req, res) => {
+    try {
+        await fetch(`http://${sptAkiHttpConfig.ip}:${port}/img/quests/`).then(res => res.text()).then(data => {
+            let images = (data.replaceAll(/\[|\]|\"/g, "").replaceAll(",", " ")).split(" ");
+            for(let i = 0; i < images.length; i++) {
+                if(images[i].includes(`${req.params.key}.png`) || images[i].includes(`${req.params.key}.jpg`)) {
+                    return res.send(images[i]);
+                }
+            }
+            return res.send("default.jpg");
+        });
+    }
+    catch (error) {
+        console.log(error)
+    }
+});
+
+// Get profile info
 app.post('/profiles/get/', async (req, res) => {
     if(!req.body.profileId) return res.send('Error. Specify profileId');
 
@@ -252,6 +286,7 @@ app.post('/profiles/get/', async (req, res) => {
     }
 });
 
+// Get all traders
 app.post('/profiles/get/traders', async (req, res) => {
     if(!req.body.profileId) return res.send('Error. Specify profileId');
 
@@ -265,6 +300,7 @@ app.post('/profiles/get/traders', async (req, res) => {
     }
 });
 
+// Get all quests
 app.post('/profiles/get/quests', async (req, res) => {
     if(!req.body.profileId) return res.send('Error. Specify profileId');
 
@@ -278,6 +314,7 @@ app.post('/profiles/get/quests', async (req, res) => {
     }
 });
 
+// Get all profiles
 app.post('/profiles/get/everyone', async (req, res) => {
     try {
         const profilesFileList = fs.readdirSync('../user/profiles').filter((file) => file.endsWith('.json'));
@@ -313,8 +350,27 @@ app.post('/profiles/get/everyone', async (req, res) => {
     }
 });
 
+// Serving the web page
 app.use(express.static(path.join(__dirname, 'web')));
 
+// Handling errors 400, 403, 404, 408
+app.use((_, res, next) => {
+    res.status(400).sendFile(path.join(__dirname, 'web/response-status', '400.html'));
+});
+
+app.use((_, res, next) => {
+    res.status(403).sendFile(path.join(__dirname, 'web/response-status', '403.html'));
+});
+
+app.use((_, res, next) => {
+    res.status(404).sendFile(path.join(__dirname, 'web/response-status', '404.html'));
+});
+
+app.use((_, res, next) => {
+    res.status(408).sendFile(path.join(__dirname, 'web/response-status', '408.html'));
+});
+
+// Saves the configuration to a file and starts the server
 app.listen(port, sptAkiHttpConfig.ip, () => {
     const config = {
         ip: sptAkiHttpConfig.ip,
@@ -324,11 +380,9 @@ app.listen(port, sptAkiHttpConfig.ip, () => {
     fs.writeFile('web/config.json', data, (err) => {
         if (err) {
             console.error('Error writing file:', err);
-        } else {
-            console.log('Configuration saved to config.json');
         }
     });
     
     console.log(`Server is running on http://${sptAkiHttpConfig.ip}:${port}`);
-    console.log(`You can view your website at http://${sptAkiHttpConfig.ip}:${port}/index.html`);
+    console.log(`You can view your website at http://${sptAkiHttpConfig.ip}:${port}/`);
 });

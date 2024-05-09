@@ -17,13 +17,19 @@ function calculateColor(value, maxValue) {
 
 async function traderTemplate(data) {
     let template = ""
+    
     for(const [key, value] of Object.entries(data)) {
+        // if (key == "Unknown Trader") continue;
+        let money = "₽";
+
+        if (key == "Peacekeeper") money = "$";
         template += `
-        <div>
-            ${key}<br><br>
+        <div class="template-background">
+            <p>${key}</p>
+            <p><img src="./img/traders/${value.traderId}.png" /></p>
             Trader LVL: ${value.traderLevel}<br>
             Trader reputation: ${value.reputation}<br>
-            Trader total sales: ${formatNumber(value.salesSum)} ₽<br>
+            Trader total sales: ${money}${formatNumber(value.salesSum)}<br>
         </div>
         `
     }
@@ -35,6 +41,7 @@ async function traderTemplate(data) {
 async function questTemplate(data) {
     let template = ""
     for(const [key, value] of Object.entries(data)) {
+        if (value.title == null) continue;
         let date = new Date(value.startTime * 1000);
         let dateString = date.toLocaleString("en-GB", {timeZone: "Europe/London"});
         let timings = ""
@@ -43,13 +50,25 @@ async function questTemplate(data) {
             let dateString = date.toLocaleString("en-GB", {timeZone: "Europe/London"});
             timings += `${timingKey}: ${dateString}<br>`
         }
+        let questImg = await fetch(`img/quests/get/${key}`).then(async (res) => {
+            return await res.text()
+        });
+        let background = value.status == 
+        "Finished" ? "background-color: #074e23;" : value.status == 
+        "Awaiting confirmation" ? "background-color: #0d9142;" : value.status == 
+        "In progress" ? "background-color: #4e4307;" : "background-color: #0000ff;"
         template += `
-        <div>
-            <p>${value.title ? value.title : key}</p><br>
-            <a href="https://escapefromtarkov.fandom.com/wiki/${value.title}">Wiki Page</a>
-            <p>Start time: ${dateString}</p>
-            <p>Quest status: ${value.status}</p>
-            <p>Status timings:<br>${timings}</p>
+        <div class="template-background" style="${background}">
+            <div>
+                <img src="./img/quests/${questImg}" />
+            </div>
+            <div>
+                <p>${value.title ? value.title : key}</p><br>
+                <a href="https://escapefromtarkov.fandom.com/wiki/${value.title}" style="text-decoration: underline;">Wiki Page</a>
+                <p>Start time: ${dateString}</p>
+                <p>Quest status: ${value.status}</p>
+                <p>Status timings:<br>${timings}</p>
+            </div>
         </div>
         `
     }
@@ -126,7 +145,7 @@ async function loadProfile(data) {
     <div class="profile">
         <div class="profile-info">
             <p style="display: flex; justify-content: center;">
-                <img src="./img/ranks/rank${Math.floor(data.PMCInfo.level / 5) * 5}.png"/>
+                <img draggable="false" src="./img/ranks/rank${Math.floor(data.PMCInfo.level / 5) * 5}.png"/>
             </p>
             <p>Profile name: ${data.profileInfo.profileName}</p>
             <p>Profile ID: ${data.profileInfo.profileId}</p>
@@ -173,9 +192,9 @@ async function loadProfile(data) {
             </div>
             <div>
             <h3>Traders info</h3>
-            <div class="grid-container">
-                <div class="button" id="traderButton" onclick="loadTraders('${data.profileInfo.profileId}', 0)">Load traders</div>
-                <div class="button" id="questButton" onclick="loadQuests('${data.profileInfo.profileId}', 0)">Load quests</div>
+            <div class="profile-info horizontal">
+                <div class="button" id="traderButton" onclick="loadTraders('${data.profileInfo.profileId}', 0)" style="width: 100%;">Load traders</div>
+                <div class="button" id="questButton" onclick="loadQuests('${data.profileInfo.profileId}', 0)" style="width: 100%;">Load quests</div>
             </div>
         </div>
     </div>`

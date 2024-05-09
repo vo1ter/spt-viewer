@@ -1,11 +1,14 @@
+//Constatnts
 let gameTimeContainer = ""
 const tarkovRatio = 7;
 const updateRate = 1000 / tarkovRatio;
 
+// Font change
 function changeFont() {
     document.body.classList.toggle('funny-fontXD');
 }
 
+// In game time
 async function updateTime() {
     while (true) {
         let tarkovTimeDay = realTimeToTarkovTime(new Date(), false);
@@ -13,20 +16,21 @@ async function updateTime() {
         let iconTimeDay = "";
         let iconTimeNight = ""
 
-        if(parseInt((tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })).split(":")[0]) > 5) {
-            iconTimeDay = "./img/day.png";
-            iconTimeNight = "./img/night.png";
+        if(parseInt((tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })).split(":")[0]) >= 5) {
+            iconTimeNight = "./img/day.png";
+            iconTimeDay = "./img/night.png";
         }
         else if(parseInt((tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })).split(":")[0]) < 5) {
-            iconTimeDay = "./img/night.png";
-            iconTimeNight = "./img/day.png";
+            iconTimeNight = "./img/night.png";
+            iconTimeDay = "./img/day.png";
         }
+
 
         gameTimeContainer.innerHTML = `
             <img draggable="false" class="icon" src="${iconTimeDay}" alt=""> 
-                ${tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })} | 
+                ${tarkovTimeNight.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })} | 
             <img draggable="false" class="icon" src="${iconTimeNight}" alt=""> 
-                ${tarkovTimeNight.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })}`;
+                ${tarkovTimeDay.toLocaleTimeString("en-GB", { timeZone: "Europe/London" }, { hour: '2-digit', minute: '2-digit' })}`;
         await new Promise(resolve => setTimeout(resolve, updateRate));
     }
 }
@@ -59,6 +63,7 @@ function formatNumber(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// Footer
 (() => {
     document.getElementsByTagName("body")[0].innerHTML = `
     <header>

@@ -1,12 +1,21 @@
-function popualteProfiles(profiles) {
+async function popualteProfiles(profiles) {
     let profilesContainer = document.querySelector(".profiles");
 
     for (const [key, value] of Object.entries(profiles)) {
         let date = new Date(value.PMCInfo.lastSession * 1000);
         let dateString = date.toLocaleString("en-GB", {timeZone: "Europe/London"});
-        let imageNumber = hashString(value.profileInfo.profileId) % 146 + 1;
+        imageUrl = "default.jpg"
+        try {
+            await fetch(`/img/quests/`).then(res => res.text()).then(data => {
+                let images = (data.replaceAll(/\[|\]|\"/g, "").replaceAll(",", " ")).split(" ");
+                imageUrl = images[hashString(value.profileInfo.profileId) % images.length + 1]
+            });
+        }
+        catch (error) {
+            console.log(error)
+        }
         profilesContainer.innerHTML += `
-            <a href="profile.html?profileId=${value.profileInfo.profileId}" class="profile" draggable="false" style="background-image: url(img/background-images/${imageNumber}.png);">
+            <a href="profile.html?profileId=${value.profileInfo.profileId}" class="profile" draggable="false" style="background-image: url(img/quests/${imageUrl});">
                 <div class="profile-info" style="flex-direction:row;">
                     <img draggable="false" class="user_img" src="./img/side_${String(value.PMCInfo.side).toLowerCase()}.png" alt="" height="20px" width="20px">
                     <div style="text-shadow: 2px 2px 5px black;">

@@ -239,3 +239,23 @@ body.funny-fontXD {
         "EHLT" 12 !important;
     font-size: 0.9em !important;
 }
+
+.horizontal {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.vertical {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.template-background {
+    background-color: #343434;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 0.5em 0.1em var(--primary-color);
+}

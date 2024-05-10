@@ -160,24 +160,51 @@ async function loadQuests(profileId, state) {
 
 async function loadInventory(data) {
     let inventoryContainer = document.querySelector(".inventory-container");
-    console.log(data)
-
-    for(let i = 0; i < 28; i++) {
-        let inventoryRow = "<div class='horizontal'>"
+    let inventoryTable = document.createElement('table');
+    for(let i = 0; i < 68; i++) {
+        let inventoryRow = document.createElement('tr');
         for(let k = 0; k < 10; k++) {
-            inventoryRow += `<div>${k + 1}</div>`
+            let cell = document.createElement('td');
+            cell.textContent = k + " " + i;
+            inventoryRow.appendChild(cell);
         }
-        inventoryRow += "</div>"
-        inventoryContainer.innerHTML += inventoryRow
+        inventoryTable.appendChild(inventoryRow);
     }
+    inventoryContainer.appendChild(inventoryTable);
     paintRegion(data);
 }
 
 function paintRegion(data) {
-    let randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);    // Generate a random color
-    let elements = document.querySelectorAll(`.horizontal:nth-child(-n+${data.y + data.height}) div:nth-child(-n+${data.x + data.width})`); // Get the elements in the specified region
-    elements.forEach(element => {   // Loop through the elements and paint them
-        element.style.backgroundColor = randomColor;
+    const inventoryData = data.inventory.hideout;
+    console.log(inventoryData);
+    // 48, 34, 35
+    let element = inventoryData[36];
+    console.log(element);
+    inventoryData.forEach(element => {   // Loop through the elements and paint them
+        let randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);    // Generate a random color
+        // Calculate the coordinates of the region based on width and height
+        let endX, endY;
+        if (element.location.r === "Horizontal") {
+            endX = element.location.x + element.width;
+            endY = element.location.y + element.height;
+        } else if (element.location.r === "Vertical") {
+            endX = element.location.x + element.height;
+            endY = element.location.y + element.width;
+        }
+        // Get the td elements in the specified region
+        for (let y = element.location.y; y < endY; y++) {
+            for (let x = element.location.x; x < endX; x++) {
+                let cell;
+                if (element.location.r === "Horizontal") {
+                    cell = document.querySelector(`tr:nth-child(${y + 1}) td:nth-child(${x + 1})`);
+                } else if (element.location.r === "Vertical") {
+                    cell = document.querySelector(`tr:nth-child(${x + 1}) td:nth-child(${y + 1})`);
+                }
+                if (cell) {
+                    cell.style.backgroundColor = randomColor; // Paint the cell with the random color
+                }
+            }
+        }
     });
 }
 

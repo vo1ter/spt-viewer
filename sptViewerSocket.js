@@ -219,14 +219,25 @@ async function getProfileInfo(profileId, origin) {
     });
     await Promise.all(killPromises);
 
-    const inventoryPromises = info.characters.pmc.Inventory.items
+    const hideoutPromises = info.characters.pmc.Inventory.items
         .filter(item => item.slotId === "hideout")
         .map(async (item) => {
             const itemData = await getItemById(item._tpl);
+            var height = itemData.item._props.Height;
+            var width = itemData.item._props.Width;
+            if (item.upd && item.upd.FireMode) {
+                let attachedModules = info.characters.pmc.Inventory.items.filter(parentItem => parentItem.parentId === item._id);
+                for (let module of attachedModules) {
+                    let moduleData = await getItemById(module._tpl);
+                    height += moduleData.item._props.ExtraSizeDown;
+                    width += moduleData.item._props.ExtraSizeRight;
+                }
+            }
             return {
                 name: itemData.locale.ShortName,
-                height: itemData.item._props.Height,
-                width: itemData.item._props.Width,
+                fullName: itemData.locale.Name,
+                height: height,
+                width: width,
                 id: item._tpl,
                 slotId: item.slotId,
                 location: item.location,
@@ -234,7 +245,7 @@ async function getProfileInfo(profileId, origin) {
                 parentId: item.parentId,
             };
         });
-    const inventory = await Promise.all(inventoryPromises);
+    const hideout = await Promise.all(hideoutPromises);
 
     return {
         profileInfo: {
@@ -279,7 +290,7 @@ async function getProfileInfo(profileId, origin) {
             kills
         },
         inventory: {
-            inventory
+            hideout
         }
     };
 }

@@ -77,6 +77,23 @@ async function questTemplate(data) {
     `
 }
 
+async function hideoutTemplate(data) {
+    let template = ""
+    for(const [key, value] of Object.entries(data)) {
+        console.log(value)
+        template += `
+        <div class="template-background">
+            <p>${value.name}</p>
+            <p>Lvl: ${value.level}</p>
+            <p>Active: ${value.active}</p>
+        </div>
+        `
+    }
+    return `
+    ${template}
+    `
+}
+
 async function loadTraders(profileId, state) {
     let button = document.querySelector("#traderButton");
     if(state == 0) {
@@ -98,7 +115,7 @@ async function loadTraders(profileId, state) {
         
         button.setAttribute("onClick", `loadTraders('${profileId}', 1)`)
         button.innerHTML = `Unload ${button.innerHTML.split(" ")[1]}`
-        return document.querySelector(".profile-info").innerHTML += `<div id="traders" class="grid-container">${await traderTemplate(data)}</div>`;
+        return document.querySelectorAll(".profile-info")[1].innerHTML += `<div id="traders" class="grid-container">${await traderTemplate(data)}</div>`;
     }
     else if(state == 1) {
         button.setAttribute("onClick", `loadTraders('${profileId}', 0)`)
@@ -128,12 +145,55 @@ async function loadQuests(profileId, state) {
 
         button.setAttribute("onClick", `loadQuests('${profileId}', 1)`)
         button.innerHTML = `Unload ${button.innerHTML.split(" ")[1]}`
-        return document.querySelector(".profile-info").innerHTML += `<div id="quests" class="grid-container">${await questTemplate(data)}</div>`;
+        return document.querySelectorAll(".profile-info")[1].innerHTML += `<div id="quests" class="grid-container">${await questTemplate(data)}</div>`;
     }
     else {
         button.setAttribute("onClick", `loadQuests('${profileId}', 0)`)
         button.innerHTML = `Load ${button.innerHTML.split(" ")[1]}`
         return document.querySelector("#quests").remove();
+    }
+}
+
+async function loadInventory(data) {
+    let inventoryContainer = document.querySelector(".inventory-container");
+
+    for(let i = 0; i < 28; i++) {
+        let inventoryRow = "<div class='horizontal'>"
+        for(let k = 0; k < 10; k++) {
+            inventoryRow += `<div>${k + 1}</div>`
+        }
+        inventoryRow += "</div>"
+        inventoryContainer.innerHTML += inventoryRow
+    }
+}
+
+async function loadHideout(profileId, state) {
+    let button = document.querySelector("#hideoutButton");
+    if(state == 0) {
+        const data = await fetch(`http://${socketIp}:${socketPort}/profiles/get/hideout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                profileId: profileId
+            })
+        })
+        .then(async (response) => {
+            return await response.json()
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
+        button.setAttribute("onClick", `loadHideout('${profileId}', 1)`)
+        button.innerHTML = `Unload ${button.innerHTML.split(" ")[1]}`
+        return document.querySelectorAll(".profile-info")[1].innerHTML += `<div id="hideout" class="grid-container">${await hideoutTemplate(data)}</div>`;
+    }
+    else {
+        button.setAttribute("onClick", `loadHideout('${profileId}', 0)`)
+        button.innerHTML = `Load ${button.innerHTML.split(" ")[1]}`
+        return document.querySelector("#hideout").remove();
     }
 }
 
@@ -143,22 +203,19 @@ async function loadProfile(data) {
     // style="align-items: center; justify-content: center; text-align center:"
     return document.querySelector(".container").innerHTML += `
     <div class="profile">
-        <div class="profile-info">
-            <p style="display: flex; justify-content: center;">
-                <img draggable="false" src="./img/ranks/rank${Math.floor(data.PMCInfo.level / 5) * 5}.png"/>
-            </p>
-            <p>Profile name: ${data.profileInfo.profileName}</p>
-            <p>Profile ID: ${data.profileInfo.profileId}</p>
-            <p>Package: ${data.profileInfo.profilePackage}</p>
-            <p>Last Session: ${dateString}</p>
-            <p></p>
-            <h2>PMC Stats</h2>
-            <p>Side: ${data.PMCInfo.side}</p>
-            <p>Exprerience: ${data.PMCInfo.experience}</p>
-            <p>Level: ${data.PMCInfo.level}</p>
-            <p>Hydration: ${data.PMCInfo.health.hydration}</p>
-            <p>Energy: ${data.PMCInfo.health.energy}</p>
-            <h3>Health</h3>
+        <div class="profile-info" style="max-width: 30%;">
+            <div class="horizontal" style="justify-content: space-between; width: 100%;">
+                <div class="horizontal" style="margin-right: auto;">
+                    <img src="./img/ranks/rank${Math.floor(data.PMCInfo.level / 5) * 5}.png" alt="">
+                    <h1>${data.PMCInfo.level}</h1>
+                </div>
+                <div class="grid-container" style="font-size: 0.5em; text-align: left;">
+                    <p>Raids: 0</p>
+                    <p>Survival Rate: 0</p>
+                    <p>Kills: 0</p>
+                    <p>K/D: 0</p>
+                </div>
+            </div>
             <div class="health-container">
                 <div class="health-row">
                     <div class="progress" style="background-color: ${calculateColor((data.PMCInfo.health.body.head).split("/")[0], (data.PMCInfo.health.body.head).split("/")[1])}">
@@ -190,25 +247,25 @@ async function loadProfile(data) {
                     </div>
                 </div>
             </div>
-            <div>
-            <h3>Traders info</h3>
-            <div class="profile-info horizontal">
+            <p style="display: flex; align-items: center; justify-content: center; flex-direction: column;"><img src="./img/side_${data.PMCInfo.side}.png" style="width: 30px;">${data.profileInfo.profileName}</p>
+            <h4><img src="./img/icon_experience.png"> ${data.PMCInfo.experience}</h4>
+        </div>
+        <div class="profile-info vertical">
+            <div class="horizontal">
                 <div class="button" id="traderButton" onclick="loadTraders('${data.profileInfo.profileId}', 0)" style="width: 100%;">Load traders</div>
                 <div class="button" id="questButton" onclick="loadQuests('${data.profileInfo.profileId}', 0)" style="width: 100%;">Load quests</div>
+                <div class="button" id="hideoutButton" onclick="loadHideout('${data.profileInfo.profileId}', 0)" style="width: 100%;">Load hideout</div>
             </div>
+        </div>
+    </div>
+    <div class="profile vertical">
+        <p>Inventory </p>
+        <div class="inventory-container">
+            
         </div>
     </div>`
 }
 
-
-/*
-<div class="grid-container">
-    ${await traderTemplate(data.tradersInfo)}
-</div>
-<div class="grid-container">
-    ${await questTemplate(data.PMCInfo.quests)}
-</div>
-*/
 (async () => {
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.size > 0) {

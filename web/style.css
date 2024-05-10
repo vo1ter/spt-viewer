@@ -135,6 +135,7 @@ em a {
     flex-direction: column;
     align-items: center;
     gap: 1em;
+    width: 100%;
 }
 
 .health-row {
@@ -221,6 +222,7 @@ a:hover {
     cursor: pointer;
     max-width: auto;
     text-align: center;
+    transition: .3s;
 }
 
 .button:hover {
@@ -245,6 +247,7 @@ body.funny-fontXD {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    width: 100%;
 }
 
 .vertical {
@@ -252,6 +255,7 @@ body.funny-fontXD {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
 }
 
 .template-background {

@@ -1,0 +1,103 @@
+{
+    "Vents": {
+        "type": "1",
+        "maxLvl": "3"
+    },
+    "Security": {
+        "type": "2",
+        "maxLvl": "3"
+    },
+    "Lavatory": {
+        "type": "3",
+        "maxLvl": "3"
+    },
+    "Stash": {
+        "type": "4",
+        "maxLvl": "4"
+    },
+    "Generator": {
+        "type": "5",
+        "maxLvl": "3"
+    },
+    "Heating": {
+        "type": "6",
+        "maxLvl": "3"
+    },
+    "Water Collector": {
+        "type": "7",
+        "maxLvl": "3"
+    },
+    "Medstation": {
+        "type": "8",
+        "maxLvl": "3"
+    },
+    "Nutrition Unit": {
+        "type": "9",
+        "maxLvl": "3"
+    },
+    "Rest Space": {
+        "type": "10",
+        "maxLvl": "3"
+    },
+    "Workbench": {
+        "type": "11",
+        "maxLvl": "3"
+    },
+    "Intelligence Center": {
+        "type": "12",
+        "maxLvl": "3"
+    },
+    "Shooting Range": {
+        "type": "13",
+        "maxLvl": "1"
+    },
+    "Library": {
+        "type": "14",
+        "maxLvl": "1"
+    },
+    "Scav Case": {
+        "type": "15",
+        "maxLvl": "1"
+    },
+    "Illumination": {
+        "type": "16",
+        "maxLvl": "3"
+    },
+    "Place of Fame": {
+        "type": "17",
+        "maxLvl": "1"
+    },
+    "Air Filtrering Unit": {
+        "type": "18",
+        "maxLvl": "1"
+    },
+    "Solar Power": {
+        "type": "19",
+        "maxLvl": "1"
+    },
+    "Booze Generator": {
+        "type": "20",
+        "maxLvl": "1"
+    },
+    "Bitcoin Farm": {
+        "type": "21",
+        "maxLvl": "3"
+    },
+    "Christmas Tree": {
+        "type": "22",
+        "maxLvl": "1"
+    },
+    "Broken Wall": {
+        "type": "23",
+        "maxLvl": "6"
+    },
+    "Gym": {
+        "type": "24",
+        "maxLvl": "2"
+    },
+    "Weapon Wall": {
+        "type": "25",
+        "maxLvl": "3"
+    }
+}
+

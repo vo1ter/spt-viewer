@@ -84,6 +84,28 @@ async function getQuestsInfo(profileId) {
     return quests;
 }
 
+async function getHideoutInfo(profileId) {
+    const filePath = `../user/profiles/${profileId}.json`;
+    const fileContent = fs.readFileSync(filePath);
+    const data = JSON.parse(fileContent).characters.pmc.Hideout.Areas;
+
+    const hideoutAreasPath = './hideoutAreas.json';
+    const hideoutAreasContent = fs.readFileSync(hideoutAreasPath);
+    const hideoutAreas = JSON.parse(hideoutAreasContent);
+
+    const response = {}
+    for(const area in data) {
+        response[data[area].type] = {
+            name: (Object.keys(hideoutAreas)[data[area].type]),
+            active: data[area].active,
+            completingTime: data[area].completingTime,
+            level: data[area].level,
+            inventory: data[area].slots,
+        }
+    }
+    return response;
+}
+
 // Get traders info from users profile
 async function getTradersInfo(profileId) {
     const filePath = `../user/profiles/${profileId}.json`;
@@ -166,8 +188,6 @@ async function getProfileInfo(profileId, origin) {
             }
         };
     }
-
-    const tradersInfo = await getTradersInfo(profileId);
 
     const skillsInfo = {};
     info.characters.pmc.Skills.Common.forEach(skill => {
@@ -293,6 +313,19 @@ app.post('/profiles/get/traders', async (req, res) => {
     try {
         const tradersInfo = await getTradersInfo(req.body.profileId);
         res.send(tradersInfo);
+    } 
+    catch (err) {
+        console.log(err);
+        res.send('Error reading profile');
+    }
+});
+
+app.post('/profiles/get/hideout', async (req, res) => {
+    if(!req.body.profileId) return res.send('Error. Specify profileId');
+
+    try {
+        const hideoutInfo = await getHideoutInfo(req.body.profileId);
+        res.send(hideoutInfo);
     } 
     catch (err) {
         console.log(err);

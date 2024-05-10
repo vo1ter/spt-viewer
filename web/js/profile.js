@@ -84,7 +84,7 @@ async function questTemplate(data) {
 async function hideoutTemplate(data) {
     let template = ""
     for(const [key, value] of Object.entries(data)) {
-        console.log(value)
+        if (value.name == undefined) continue;
         template += `
         <div class="template-background">
             <p>${value.name}</p>
@@ -160,6 +160,7 @@ async function loadQuests(profileId, state) {
 
 async function loadInventory(data) {
     let inventoryContainer = document.querySelector(".inventory-container");
+    console.log(data)
 
     for(let i = 0; i < 28; i++) {
         let inventoryRow = "<div class='horizontal'>"
@@ -169,6 +170,15 @@ async function loadInventory(data) {
         inventoryRow += "</div>"
         inventoryContainer.innerHTML += inventoryRow
     }
+    paintRegion(data);
+}
+
+function paintRegion(data) {
+    let randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);    // Generate a random color
+    let elements = document.querySelectorAll(`.horizontal:nth-child(-n+${data.y + data.height}) div:nth-child(-n+${data.x + data.width})`); // Get the elements in the specified region
+    elements.forEach(element => {   // Loop through the elements and paint them
+        element.style.backgroundColor = randomColor;
+    });
 }
 
 async function loadHideout(profileId, state) {
@@ -295,7 +305,7 @@ async function loadProfile(data) {
                 console.error('Error:', error);
             });
 
-            return loadProfile(data);
+            return loadProfile(data) && loadInventory(data);
         })
     } else {
         return window.location.href = './index.html';

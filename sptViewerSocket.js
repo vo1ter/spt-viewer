@@ -217,8 +217,24 @@ async function getProfileInfo(profileId, origin) {
         };
         return kills;
     });
-
     await Promise.all(killPromises);
+
+    const inventoryPromises = info.characters.pmc.Inventory.items
+        .filter(item => item.slotId === "hideout")
+        .map(async (item) => {
+            const itemData = await getItemById(item._tpl);
+            return {
+                name: itemData.locale.ShortName,
+                height: itemData.item._props.Height,
+                width: itemData.item._props.Width,
+                id: item._tpl,
+                slotId: item.slotId,
+                location: item.location,
+                upd: item.upd,
+                parentId: item.parentId,
+            };
+        });
+    const inventory = await Promise.all(inventoryPromises);
 
     return {
         profileInfo: {
@@ -261,6 +277,9 @@ async function getProfileInfo(profileId, origin) {
         lastRaid: {
             sessionDate: Math.max(info.characters.pmc.Stats.Eft.LastSessionDate, info.characters.scav.Stats.Eft.LastSessionDate),
             kills
+        },
+        inventory: {
+            inventory
         }
     };
 }

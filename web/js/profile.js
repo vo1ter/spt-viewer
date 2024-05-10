@@ -40,7 +40,11 @@ async function traderTemplate(data) {
 
 async function questTemplate(data) {
     let template = ""
-    for(const [key, value] of Object.entries(data)) {
+    const sortOrder = ["Awaiting confirmation", "In progress", "Finished", "Undefined"];
+    const sortedData = Object.entries(data).sort(([keyA, valueA], [keyB, valueB]) => {
+        return sortOrder.indexOf(valueA.status) - sortOrder.indexOf(valueB.status);
+    });
+    for(const [key, value] of sortedData) {
         if (value.title == null) continue;
         let date = new Date(value.startTime * 1000);
         let dateString = date.toLocaleString("en-GB", {timeZone: "Europe/London"});
@@ -56,7 +60,7 @@ async function questTemplate(data) {
         let background = value.status == 
         "Finished" ? "background-color: #074e23;" : value.status == 
         "Awaiting confirmation" ? "background-color: #0d9142;" : value.status == 
-        "In progress" ? "background-color: #4e4307;" : "background-color: #0000ff;"
+        "In progress" ? "background-color: #4e4307;" : "background-color: #343434;"
         template += `
         <div class="template-background" style="${background}">
             <div>

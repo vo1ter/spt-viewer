@@ -177,7 +177,7 @@ async function loadInventory(data) {
 async function paintRegion(data) {
     const inventoryData = data.inventory.hideout;
     let itemList = inventoryData.filter(item => item.isGun != true).map(item => `"${item.name}"`).join(', ');
-    let gunList = inventoryData.filter(item => item.isGun == true).map(item => `"${item.name.replace(/"/g, '\\"')} Default"`).join(', ');
+    let gunListArray = inventoryData.filter(item => item.isGun == true).map(item => item.name);
 
     let itemListUrls = await fetch('https://api.tarkov.dev/graphql', {
         method: 'POST',
@@ -208,8 +208,9 @@ async function paintRegion(data) {
             'Accept': 'application/json',
         },
         body: JSON.stringify({query: `{
-            items(names: [${gunList}], limit: ${gunList.length}) {
+            items(names: [${gunListArray.map(item => `"${item.replace(/"/g, '\\"')} Default"`)}], limit: ${gunListArray.length}) {
                 gridImageLink
+                shortName
             }
         }`})
         })
@@ -232,20 +233,18 @@ async function paintRegion(data) {
         gunUrls.push(element.gridImageLink)
     }
 
-    for (const element of inventoryData) {   // Loop through the elements and paint them
-        let imageUrl = ""
-        itemUrls.filter((url) => {
-            if(url.includes(element.id)) {
-                imageUrl = url
+    gunListArray = gunListArray.map(item => `${item} Default`)
+    console.log(gunListArray)
+    for (const element of inventoryData) {
+        let imageUrl = itemUrls.find((url) => url.includes(element.id)) || ""
+        if (!imageUrl) {
+            console.log(gunListUrls.data.items)
+            let gunItem = gunListUrls.data.items.find((item) => gunListArray.includes(item.shortName))
+            if (gunItem) {
+                console.log(gunItem)
+                imageUrl = gunItem.gridImageLink
             }
-            else { // BUG: weapons doesn't have any icons
-                gunUrls.filter((url) => {
-                    if(url.includes(element.id)) {
-                        imageUrl = url
-                    }
-                })
-            }
-        })
+        }
         let endX, endY;
         if (element.location.r === "Horizontal") {
             endX = element.location.x + element.width;
@@ -267,7 +266,7 @@ async function paintRegion(data) {
                     styleTags += "transform: rotate(90deg);"
                 }
                 if (cell) { // TODO Center the picture and stretch it to fit the cell
-                    if(imageUrl) cell.innerHTML += `<img src="${imageUrl}" style="${styleTags}" />`;
+                    if (imageUrl) cell.innerHTML += `<img draggable="false" src="${imageUrl}" style="${styleTags}" />`;
                     else { // BUG: Weapons are too large
                         cell.innerHTML += `<p>${element.name}</p>`
                     }

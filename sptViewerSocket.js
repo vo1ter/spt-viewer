@@ -225,7 +225,9 @@ async function getProfileInfo(profileId, origin) {
             const itemData = await getItemById(item._tpl);
             var height = itemData.item._props.Height;
             var width = itemData.item._props.Width;
+            let isGun = false;
             if (item.upd && item.upd.FireMode) {
+                isGun = true;
                 let attachedModules = info.characters.pmc.Inventory.items.filter(parentItem => parentItem.parentId === item._id);
                 for (let module of attachedModules) {
                     let moduleData = await getItemById(module._tpl);
@@ -239,6 +241,7 @@ async function getProfileInfo(profileId, origin) {
                 height: height,
                 width: width,
                 id: item._tpl,
+                isGun: isGun,
                 slotId: item.slotId,
                 location: item.location,
                 upd: item.upd,

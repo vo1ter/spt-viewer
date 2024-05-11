@@ -174,15 +174,55 @@ async function loadInventory(data) {
     paintRegion(data);
 }
 
-function paintRegion(data) {
+async function paintRegion(data) {
     const inventoryData = data.inventory.hideout;
-    console.log(inventoryData);
-    // 48, 34, 35
-    let element = inventoryData[36];
-    console.log(element);
-    inventoryData.forEach(element => {   // Loop through the elements and paint them
-        let randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);    // Generate a random color
-        // Calculate the coordinates of the region based on width and height
+    let itemList = inventoryData.filter(item => item.isGun != true).map(item => `"${item.name}"`).join(', ');
+    let gunList = inventoryData.filter(item => item.isGun == true).map(item => `"${item.name.replace(/"/g, '\\"')} Default"`).join(', ');
+
+    // TODO - Get the image URL from the API, currently gives an error as response
+    let itemListUrls = await fetch('https://api.tarkov.dev/graphql', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({query: `{
+            items(names: [${itemList}], limit: ${itemList.length}}) {
+                gridImageLink
+            }
+        }`})
+        })
+        .then(async (response) => {
+            const data = await response.json();
+            return data;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+        
+    let gunListUrls = await fetch('https://api.tarkov.dev/graphql', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({query: `{
+            items(names: [${gunList}], limit: ${gunList.length}}) {
+                gridImageLink
+            }
+        }`})
+        })
+        .then(async (response) => {
+            const data = await response.json();
+            return data;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    console.log(itemListUrls);
+    console.log(gunListUrls);
+        
+    for (const element of inventoryData) {   // Loop through the elements and paint them
         let endX, endY;
         if (element.location.r === "Horizontal") {
             endX = element.location.x + element.width;
@@ -200,12 +240,13 @@ function paintRegion(data) {
                 } else if (element.location.r === "Vertical") {
                     cell = document.querySelector(`tr:nth-child(${x + 1}) td:nth-child(${y + 1})`);
                 }
-                if (cell) {
-                    cell.style.backgroundColor = randomColor; // Paint the cell with the random color
+                if (cell) { // TODO Place an image in the cell, in the future center it and stretch it to fit the cell
+                    cell.style.backgroundImage = `url(${imageUrl})`; // Set the cell background to the image
+                    cell.style.backgroundSize = 'cover'; // Cover the cell with the image
                 }
             }
         }
-    });
+    }
 }
 
 async function loadHideout(profileId, state) {

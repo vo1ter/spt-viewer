@@ -263,3 +263,12 @@ body.funny-fontXD {
     border-radius: 0.5rem;
     box-shadow: 0 0 0.5em 0.1em var(--primary-color);
 }
+
+.inventory-container > table > * > td {
+    background-image: url(img/background.png);
+    width: 75px;
+    height: 75px;
+    max-width: 75px;
+    max-height: 75px;
+    border: 1px solid rgb(255,255,255,0.15);
+}

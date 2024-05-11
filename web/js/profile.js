@@ -165,7 +165,7 @@ async function loadInventory(data) {
         let inventoryRow = document.createElement('tr');
         for(let k = 0; k < 10; k++) {
             let cell = document.createElement('td');
-            cell.textContent = k + " " + i;
+            // cell.textContent = k + " " + i;
             inventoryRow.appendChild(cell);
         }
         inventoryTable.appendChild(inventoryRow);
@@ -179,7 +179,6 @@ async function paintRegion(data) {
     let itemList = inventoryData.filter(item => item.isGun != true).map(item => `"${item.name}"`).join(', ');
     let gunList = inventoryData.filter(item => item.isGun == true).map(item => `"${item.name.replace(/"/g, '\\"')} Default"`).join(', ');
 
-    // TODO - Get the image URL from the API, currently gives an error as response
     let itemListUrls = await fetch('https://api.tarkov.dev/graphql', {
         method: 'POST',
         headers: {
@@ -187,14 +186,16 @@ async function paintRegion(data) {
             'Accept': 'application/json',
         },
         body: JSON.stringify({query: `{
-            items(names: [${itemList}], limit: ${itemList.length}}) {
+            items(names: [${itemList}], limit: ${itemList.length}) {
                 gridImageLink
             }
         }`})
         })
         .then(async (response) => {
-            const data = await response.json();
-            return data;
+            return await response.json();
+        })
+        .then((data) => {
+            return data
         })
         .catch(error => {
             console.error('Error:', error);
@@ -207,7 +208,7 @@ async function paintRegion(data) {
             'Accept': 'application/json',
         },
         body: JSON.stringify({query: `{
-            items(names: [${gunList}], limit: ${gunList.length}}) {
+            items(names: [${gunList}], limit: ${gunList.length}) {
                 gridImageLink
             }
         }`})
@@ -219,10 +220,32 @@ async function paintRegion(data) {
         .catch(error => {
             console.error('Error:', error);
         });
-    console.log(itemListUrls);
-    console.log(gunListUrls);
-        
+
+    let itemUrls = [] // An array to store the URLs of the items
+    let gunUrls = [] // An array to store the URLs of the items
+
+    for (const element of itemListUrls.data.items) {
+        itemUrls.push(element.gridImageLink)
+    }
+
+    for (const element of gunListUrls.data.items) {
+        gunUrls.push(element.gridImageLink)
+    }
+
     for (const element of inventoryData) {   // Loop through the elements and paint them
+        let imageUrl = ""
+        itemUrls.filter((url) => {
+            if(url.includes(element.id)) {
+                imageUrl = url
+            }
+            else { // BUG: weapons doesn't have any icons
+                gunUrls.filter((url) => {
+                    if(url.includes(element.id)) {
+                        imageUrl = url
+                    }
+                })
+            }
+        })
         let endX, endY;
         if (element.location.r === "Horizontal") {
             endX = element.location.x + element.width;
@@ -234,15 +257,20 @@ async function paintRegion(data) {
         // Get the td elements in the specified region
         for (let y = element.location.y; y < endY; y++) {
             for (let x = element.location.x; x < endX; x++) {
+                let styleTags = "width: 100%; height: 100%;"
                 let cell;
                 if (element.location.r === "Horizontal") {
                     cell = document.querySelector(`tr:nth-child(${y + 1}) td:nth-child(${x + 1})`);
-                } else if (element.location.r === "Vertical") {
-                    cell = document.querySelector(`tr:nth-child(${x + 1}) td:nth-child(${y + 1})`);
+                } 
+                else if (element.location.r === "Vertical") {
+                    cell = document.querySelector(`tr:nth-child(${y + 1}) td:nth-child(${x + 1})`);
+                    styleTags += "transform: rotate(90deg);"
                 }
-                if (cell) { // TODO Place an image in the cell, in the future center it and stretch it to fit the cell
-                    cell.style.backgroundImage = `url(${imageUrl})`; // Set the cell background to the image
-                    cell.style.backgroundSize = 'cover'; // Cover the cell with the image
+                if (cell) { // TODO Center the picture and stretch it to fit the cell
+                    if(imageUrl) cell.innerHTML += `<img src="${imageUrl}" style="${styleTags}" />`;
+                    else { // BUG: Weapons are too large
+                        cell.innerHTML += `<p>${element.name}</p>`
+                    }
                 }
             }
         }

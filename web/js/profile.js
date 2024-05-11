@@ -234,16 +234,19 @@ async function paintRegion(data) {
     }
 
     gunListArray = gunListArray.map(item => `${item} Default`)
-    console.log(gunListArray)
     for (const element of inventoryData) {
-        let imageUrl = itemUrls.find((url) => url.includes(element.id)) || ""
-        if (!imageUrl) {
-            console.log(gunListUrls.data.items)
-            let gunItem = gunListUrls.data.items.find((item) => gunListArray.includes(item.shortName))
-            if (gunItem) {
-                console.log(gunItem)
-                imageUrl = gunItem.gridImageLink
+        let imageUrl;
+        let itemUrl = itemUrls.find((url) => url.includes(element.id));
+        if (!itemUrl) {
+            for (const gun of gunListUrls.data.items) {
+                if (`${element.name} Default` == gun.shortName) {
+                    imageUrl = gun.gridImageLink;
+                    break;
+                }
             }
+        }
+        else {
+            imageUrl = itemUrl;
         }
         let endX, endY;
         if (element.location.r === "Horizontal") {

@@ -14,6 +14,15 @@ async function popualteProfiles(profiles) {
         catch (error) {
             console.log(error)
         }
+
+        let characterStatus = "Unknown";
+        if (!(value.inRaid.location == "Not in raid")) {
+            console.log(value.inRaid.character)
+            if(!(value.inRaid.character == undefined)) {
+                characterStatus = `${value.inRaid.location}`;
+            }
+        }
+
         profilesContainer.innerHTML += `
             <a href="profile.html?profileId=${value.profileInfo.profileId}" class="profile" draggable="false" style="background-image: url(img/quests/${imageUrl});">
                 <div class="profile-info" style="flex-direction:row;">
@@ -22,6 +31,7 @@ async function popualteProfiles(profiles) {
                         <p>Profile name: ${value.profileInfo.profileName} </p>
                         <p>Profile ID: ${value.profileInfo.profileId} </p>
                         <p>Last Session: ${dateString}</p>
+                        <p>Inraid: ${characterStatus}</p>
                     </div>
                 </div>
             </a>`

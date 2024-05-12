@@ -175,6 +175,32 @@ async function getProfileInfo(profileId, origin) {
     const fileContent = fs.readFileSync(filePath);
     const info = JSON.parse(fileContent);
 
+    let location = "Not in raid";
+    if(info.inraid.location !== "none") {
+        switch (info.inraid.location) {
+            case "RezervBase":
+                location = "Reserve";
+                break;
+            case "Woods":
+                location = "Woods";
+                break;
+            case "Interchange":
+                location = "Interchange";
+                break;
+            case "factory4_day" || "factory4_night": 
+                location = "Factory";
+                break;
+            case "bigmap":
+                location = "Customs";
+                break;
+            case "Shoreline":
+                location = "Customs";
+                break;
+            default:
+                location = "Unknown";
+        }
+    }
+
     origin = origin || "soloProfile";
     if(origin == "everyone") {
         return {
@@ -185,6 +211,10 @@ async function getProfileInfo(profileId, origin) {
             PMCInfo: {
                 side: info.characters.pmc.Info.Side,
                 lastSession: Math.max(info.characters.pmc.Stats.Eft.LastSessionDate, info.characters.scav.Stats.Eft.LastSessionDate),
+            },
+            inRaid: {
+                location: location,
+                character: info.inraid.character,
             }
         };
     }
@@ -294,6 +324,10 @@ async function getProfileInfo(profileId, origin) {
         },
         inventory: {
             hideout
+        },
+        inRaid: {
+            location: info.inraid.location ? info.inraid.location : "Not in raid",
+            character: info.inraid.character ? info.inraid.character : "Not in raid",
         }
     };
 }

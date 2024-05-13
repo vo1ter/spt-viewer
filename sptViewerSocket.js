@@ -194,7 +194,7 @@ async function getProfileInfo(profileId, origin) {
                 location = "Customs";
                 break;
             case "Shoreline":
-                location = "Customs";
+                location = "Shoreline";
                 break;
             default:
                 location = "Unknown";

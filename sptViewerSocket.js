@@ -472,9 +472,13 @@ app.use((_, res, next) => {
 
 // Saves the configuration to a file and starts the server
 app.listen(port, sptAkiHttpConfig.ip, () => {
+    let rawConfig = fs.readFileSync('./web/config.json');
+    let configInitial = JSON.parse(rawConfig);
+
     const config = {
         ip: sptAkiHttpConfig.ip,
-        port: port
+        port: port,
+        clientId: configInitial.clientId
     };
     const data = JSON.stringify(config, null, 2);
     fs.writeFile('web/config.json', data, (err) => {
@@ -483,6 +487,61 @@ app.listen(port, sptAkiHttpConfig.ip, () => {
         }
     });
     
-    console.log(`Server is running on http://${sptAkiHttpConfig.ip}:${port}`);
+    console.log(`Server is running on http://${sptAkiHttpConfig.ip}:6969`);
     console.log(`You can view your website at http://${sptAkiHttpConfig.ip}:${port}/`);
 });
+
+// Discord RPC
+const RPC = require('discord-rpc');
+
+let rawConfig = fs.readFileSync('./web/config.json');
+let config = JSON.parse(rawConfig);
+const clientId = config.clientId;
+console.log(clientId);
+
+if (clientId != "YOUR_CLIENT_ID"){
+    const client = new RPC.Client({ transport: 'ipc', clientId: clientId });
+
+    client.on('ready', () => {
+    console.log(`Logged in as ${client.user.username}`);
+
+    // Side image
+    const filePath = `../user/profiles/662e3cdb0003f1b36e405e24.json`;
+    const fileContent = fs.readFileSync(filePath);
+    const info = JSON.parse(fileContent);
+    let side = info.characters.pmc.Info.Side;
+    let imgUrl = "";
+    if (side == "Usec") imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/launcher/side_usec.png";
+    else if (side == "Bear") imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/src/branch/master/project/assets/images/launcher/side_bear.png";
+    else imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/src/branch/master/project/assets/images/launcher/scav.png";
+
+    client.setActivity({
+        details: "Playing SPT-AKI", // Replace with your game
+        startTimestamp: new Date(),
+        largeImageKey: 'https://dev.sp-tarkov.com/repo-avatars/661-81e984da30db7c62b13db369993fcb3f', // Replace with your image key
+        largeImageText: 'SPT-AKI', // Replace with your text
+        smallImageKey: `${imgUrl}`, // Replace with your small image key
+        smallImageText: `${side.toUpperCase()}`, // Replace with your small image text
+        instance: false,
+        });
+    });
+
+    const loginAttempts = 5;
+    let attempts = 0;
+        const login = () => {
+        client.login({ clientId }).catch((error) => {
+            console.error(error);
+            attempts++;
+            if (attempts < loginAttempts) {
+                console.log(`Attempt ${attempts} failed. Retrying...`);
+                setTimeout(login, 5000); // Retry after 5 seconds
+            } else {
+                console.log("Failed to connect to Discord RPC after multiple attempts.");
+            }
+        });
+    };
+
+    login();
+} else {
+    console.log("Discord RPC is not specified.");
+}

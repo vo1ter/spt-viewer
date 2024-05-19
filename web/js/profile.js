@@ -1,4 +1,5 @@
 let socketIp, socketPort;
+let profileData = {};
 
 function calculateColor(value, maxValue) {
     const maxRed = 0; // The red value at the highest value
@@ -158,24 +159,41 @@ async function loadQuests(profileId, state) {
     }
 }
 
-async function loadInventory(data) {
-    let inventoryContainer = document.querySelector(".inventory-container");
-    let inventoryTable = document.createElement('table');
-    for(let i = 0; i < 68; i++) {
-        let inventoryRow = document.createElement('tr');
-        for(let k = 0; k < 10; k++) {
-            let cell = document.createElement('td');
-            // cell.textContent = k + " " + i;
-            inventoryRow.appendChild(cell);
+async function loadInventory(state) {
+    data = profileData;
+    let button = document.querySelector("#inventoryButton");
+    if(state == 0) {
+        button.setAttribute("onClick", `loadInventory(1)`)
+        button.innerHTML = `Unload ${button.innerHTML.split(" ")[1]}`
+
+        let inventoryContainer = document.querySelector(".inventory-container");
+        let inventoryTable = document.createElement('table');
+        for(let i = 0; i < 68; i++) {
+            let inventoryRow = document.createElement('tr');
+            for(let k = 0; k < 10; k++) {
+                let cell = document.createElement('td');
+                // cell.textContent = k + " " + i;
+                inventoryRow.appendChild(cell);
+            }
+            inventoryTable.appendChild(inventoryRow);
         }
-        inventoryTable.appendChild(inventoryRow);
+        inventoryContainer.appendChild(inventoryTable);
+        return paintRegion(data);
     }
-    inventoryContainer.appendChild(inventoryTable);
-    paintRegion(data);
+    else {
+        button.setAttribute("onClick", `loadInventory(0)`)
+        button.innerHTML = `Load ${button.innerHTML.split(" ")[1]}`
+        return document.querySelector(".inventory-container").innerHTML = "";
+    }
 }
 
 async function paintRegion(data) {
     const inventoryData = data.inventory.hideout;
+
+    // inventoryData.forEach((item) => {
+    //     if(item.isGun == true) return;
+    // })
+
     let itemList = inventoryData.filter(item => item.isGun != true).map(item => `"${item.name}"`).join(', ');
     let gunListArray = inventoryData.filter(item => item.isGun == true).map(item => item.name);
 
@@ -372,6 +390,7 @@ async function loadProfile(data) {
     </div>
     <div class="profile vertical">
         <p>Inventory </p>
+        <div class="button" id="inventoryButton" onclick="loadInventory(0)">Load inventory</div>
         <div class="inventory-container">
             
         </div>
@@ -403,7 +422,9 @@ async function loadProfile(data) {
                 console.error('Error:', error);
             });
 
-            return loadProfile(data) && loadInventory(data);
+            await loadProfile(data);
+            document.querySelector("#inventoryButton").setAttribute("onClick", `loadInventory(0)`)
+            return profileData = data;
         })
     } else {
         return window.location.href = './index.html';

@@ -73,8 +73,17 @@ async function getQuestsInfo(profileId) {
             timers[timerStatus] = value;
         }
 
+        let questName = "";
+
+        try {
+            questName = questsDB[quest.qid].name;
+        }
+        catch (err) {
+            questName = quest.qid;
+        }
+
         quests[quest.qid] = {
-            title: questsDB[quest.qid],
+            title: questName,
             startTime: quest.startTime,
             status: questStatus,
             statusTimers: timers
@@ -342,12 +351,42 @@ app.get('/img/quests/', async (req, res) => {
     res.send(fileNames);
 });
 
+app.get('/img/cache/get/:key', async (req, res) => {
+    try {
+        const imgPath = path.join(__dirname, 'web/img/cache/');
+        const files = await fs.promises.readdir(imgPath);
+        if(files.includes(`${req.params.key}-grid-image.webp`)) return res.send(`http://${sptAkiHttpConfig.ip}:${port}/img/cache/${req.params.key}-grid-image.webp`);
+    }
+    catch (error) {
+        console.log(error)
+    }
+    return res.sendStatus(404)
+});
+
+app.post('/img/cache/append/', async (req, res) => {
+    if(!req.body.key || !req.body.imageUrl) return res.send('Error. Specify key');
+    try {
+        fs.appendFileSync()
+    }
+    catch(err) {
+        res.sendStatus(500)
+    }
+    const imgPath = path.join(__dirname, 'web/img/cache/');
+    const files = await fs.promises.readdir(imgPath);
+    console.log(files)
+    res.send("1")
+    // const fileNames = await Promise.all(files.map(async (file) => {
+    //     return file;
+    // }));
+    // res.send(fileNames);
+});
+
 app.get('/img/quests/get/:key', async (req, res) => {
     try {
         await fetch(`http://${sptAkiHttpConfig.ip}:${port}/img/quests/`).then(res => res.text()).then(data => {
             let images = (data.replaceAll(/\[|\]|\"/g, "").replaceAll(",", " ")).split(" ");
             for(let i = 0; i < images.length; i++) {
-                if(images[i].includes(`${req.params.key}.png`) || images[i].includes(`${req.params.key}.jpg`)) {
+                if(images[i].includes(`${req.params.key}.webp`)) {
                     return res.send(images[i]);
                 }
             }
@@ -487,61 +526,61 @@ app.listen(port, sptAkiHttpConfig.ip, () => {
         }
     });
     
-    console.log(`Server is running on http://${sptAkiHttpConfig.ip}:6969`);
+    console.log(`Server is running on http://${sptAkiHttpConfig.ip}:${port}`);
     console.log(`You can view your website at http://${sptAkiHttpConfig.ip}:${port}/`);
 });
 
 // Discord RPC
-const RPC = require('discord-rpc');
+// const RPC = require('discord-rpc');
 
-let rawConfig = fs.readFileSync('./web/config.json');
-let config = JSON.parse(rawConfig);
-const clientId = config.clientId;
-console.log(clientId);
+// let rawConfig = fs.readFileSync('./web/config.json');
+// let config = JSON.parse(rawConfig);
+// const clientId = config.clientId;
+// console.log(clientId);
 
-if (clientId != "YOUR_CLIENT_ID"){
-    const client = new RPC.Client({ transport: 'ipc', clientId: clientId });
+// if (clientId != "YOUR_CLIENT_ID"){
+//     const client = new RPC.Client({ transport: 'ipc', clientId: clientId });
 
-    client.on('ready', () => {
-    console.log(`Logged in as ${client.user.username}`);
+//     client.on('ready', () => {
+//     console.log(`Logged in as ${client.user.username}`);
 
-    // Side image
-    const filePath = `../user/profiles/662e3cdb0003f1b36e405e24.json`;
-    const fileContent = fs.readFileSync(filePath);
-    const info = JSON.parse(fileContent);
-    let side = info.characters.pmc.Info.Side;
-    let imgUrl = "";
-    if (side == "Usec") imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/launcher/side_usec.png";
-    else if (side == "Bear") imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/src/branch/master/project/assets/images/launcher/side_bear.png";
-    else imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/src/branch/master/project/assets/images/launcher/scav.png";
+//     // Side image
+//     const filePath = `../user/profiles/662e3cdb0003f1b36e405e24.json`;
+//     const fileContent = fs.readFileSync(filePath);
+//     const info = JSON.parse(fileContent);
+//     let side = info.characters.pmc.Info.Side;
+//     let imgUrl = "";
+//     if (side == "Usec") imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/launcher/side_usec.png";
+//     else if (side == "Bear") imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/src/branch/master/project/assets/images/launcher/side_bear.png";
+//     else imgUrl = "https://dev.sp-tarkov.com/SPT-AKI/Server/src/branch/master/project/assets/images/launcher/scav.png";
 
-    client.setActivity({
-        details: "Playing SPT-AKI", // Replace with your game
-        startTimestamp: new Date(),
-        largeImageKey: 'https://dev.sp-tarkov.com/repo-avatars/661-81e984da30db7c62b13db369993fcb3f', // Replace with your image key
-        largeImageText: 'SPT-AKI', // Replace with your text
-        smallImageKey: `${imgUrl}`, // Replace with your small image key
-        smallImageText: `${side.toUpperCase()}`, // Replace with your small image text
-        instance: false,
-        });
-    });
+//     client.setActivity({
+//         details: "Playing SPT-AKI", // Replace with your game
+//         startTimestamp: new Date(),
+//         largeImageKey: 'https://dev.sp-tarkov.com/repo-avatars/661-81e984da30db7c62b13db369993fcb3f', // Replace with your image key
+//         largeImageText: 'SPT-AKI', // Replace with your text
+//         smallImageKey: `${imgUrl}`, // Replace with your small image key
+//         smallImageText: `${side.toUpperCase()}`, // Replace with your small image text
+//         instance: false,
+//         });
+//     });
 
-    const loginAttempts = 5;
-    let attempts = 0;
-        const login = () => {
-        client.login({ clientId }).catch((error) => {
-            console.error(error);
-            attempts++;
-            if (attempts < loginAttempts) {
-                console.log(`Attempt ${attempts} failed. Retrying...`);
-                setTimeout(login, 5000); // Retry after 5 seconds
-            } else {
-                console.log("Failed to connect to Discord RPC after multiple attempts.");
-            }
-        });
-    };
+//     const loginAttempts = 5;
+//     let attempts = 0;
+//         const login = () => {
+//         client.login({ clientId }).catch((error) => {
+//             console.error(error);
+//             attempts++;
+//             if (attempts < loginAttempts) {
+//                 console.log(`Attempt ${attempts} failed. Retrying...`);
+//                 setTimeout(login, 5000); // Retry after 5 seconds
+//             } else {
+//                 console.log("Failed to connect to Discord RPC after multiple attempts.");
+//             }
+//         });
+//     };
 
-    login();
-} else {
-    console.log("Discord RPC is not specified.");
-}
+//     login();
+// } else {
+//     console.log("Discord RPC is not specified.");
+// }
